@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import './App.css';
 import {extendObservable} from 'mobx'
-import Form from './Form'
+// import Form from './Form'
 import {observer} from 'mobx-react'
 import {toJS} from 'mobx'
+import { GenericForm, Field } from './GenericForm'
 
 class App extends Component {
   // Equivalent of @observer influencer = { ... etc }
@@ -18,15 +19,13 @@ class App extends Component {
     });
   }
 
-
-
   handleSaveInfluencer(influencer) {
     // Here we would send the data to the API and (crucially) reload it, so that our original influencer object
     // can be updated to reflect the new values
     // InfluencerStore.saveInfluencer(influencer)
     //   .then(() => {
     //     InfluencerStore.reloadInfluencers()
-    //   }) 
+    //   })
     // For example purposes, we'll just do this:
     this.influencer = {
       name: influencer.name,
@@ -45,10 +44,34 @@ class App extends Component {
     }
   }
 
+  getInfluencerValues() {
+    const influencer = this.influencer
+
+    return {
+      name: influencer.name,
+      surname: influencer.surname,
+      verticals: toJS(influencer.verticals),
+      newVertical: ''
+    }
+  }
+
   render() {
     return (
       <div className="App">
-        <Form influencer={this.influencer} onSubmit={this.handleSaveInfluencer.bind(this)}/>
+        {
+          // commented out the old form, try this new one!
+          // <Form influencer={this.influencer} onSubmit={this.handleSaveInfluencer.bind(this)}/>
+        }
+        <GenericForm values={this.getInfluencerValues()}>
+          <Field name="name" type="text" />
+          <Field name="surname" type="text" />
+          <Field
+            name="verticals"
+            type="text"
+            setValue={(val) => { return val.split(', ') }}
+            getValue={(val) => { return (val || []).join(', ') }} />
+        </GenericForm>
+
         <h1>The Original Observable Object- No Side Effects</h1>
         <p>{this.influencer.name}</p>
         <p>{this.influencer.surname}</p>

@@ -136,6 +136,8 @@ class NDepthViewModelFormClass extends React.Component {
 
 }
 
+export const NDepthViewModelForm = observer(NDepthViewModelFormClass)
+
 
 class FieldClass extends React.Component {
 

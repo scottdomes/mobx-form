@@ -1,4 +1,42 @@
 import React from 'react'
+import { observer } from 'mobx-react'
+
+class GenericViewModelFormClass extends React.Component {
+
+  static propTypes = {
+    viewModel: React.PropTypes.object.isRequired,
+    onSave: React.PropTypes.func.isRequired,
+  }
+
+  handleChange(name, value) {
+    this.props.viewModel[name] = value
+  }
+
+  handleSave(e) {
+    e.preventDefault()
+    this.props.onSave(this.props.viewModel)
+  }
+
+  render() {
+    const childrenWithProps = React.Children.map(this.props.children,
+      (child) => {
+        return React.cloneElement(child, {
+          onChange: this.handleChange.bind(this),
+          value: this.props.viewModel[child.props.name],
+        })
+      }
+    )
+
+    return (
+      <form onSubmit={this.handleSave.bind(this)}>
+        {childrenWithProps}
+      </form>
+    )
+  }
+
+}
+
+export const GenericViewModelForm = observer(GenericViewModelFormClass)
 
 export class GenericForm extends React.Component {
 
@@ -40,7 +78,7 @@ export class GenericForm extends React.Component {
 
 }
 
-export class Field extends React.Component {
+class FieldClass extends React.Component {
 
   static propTypes = {
     name: React.PropTypes.string.isRequired,
@@ -73,3 +111,5 @@ export class Field extends React.Component {
   }
 
 }
+
+export const Field = observer(FieldClass)

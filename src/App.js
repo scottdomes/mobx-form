@@ -4,7 +4,8 @@ import {extendObservable} from 'mobx'
 // import Form from './Form'
 import {observer} from 'mobx-react'
 import {toJS} from 'mobx'
-import { GenericForm, Field } from './GenericForm'
+import { GenericViewModelForm, GenericForm, Field } from './GenericForm'
+import { createViewModel } from 'mobx-utils'
 
 class App extends Component {
   // Equivalent of @observer influencer = { ... etc }
@@ -32,6 +33,10 @@ class App extends Component {
       surname: influencer.surname,
       verticals: toJS(influencer.verticals)
     }
+  }
+
+  handleVMSave(vm) {
+    vm.submit()
   }
 
   switchInfluencer(e) {
@@ -62,7 +67,11 @@ class App extends Component {
           // commented out the old form, try this new one!
           // <Form influencer={this.influencer} onSubmit={this.handleSaveInfluencer.bind(this)}/>
         }
-        <GenericForm values={this.getInfluencerValues()}>
+
+        {
+          // Switched out <GenericForm values={this.getInfluencerValues()}>
+        }
+        <GenericViewModelForm viewModel={createViewModel(this.influencer)} onSave={this.handleVMSave.bind(this)}>
           <Field name="name" type="text" />
           <Field name="surname" type="text" />
           <Field
@@ -70,7 +79,8 @@ class App extends Component {
             type="text"
             setValue={(val) => { return val.split(', ') }}
             getValue={(val) => { return (val || []).join(', ') }} />
-        </GenericForm>
+          <input type="submit" />
+        </GenericViewModelForm>
 
         <h1>The Original Observable Object- No Side Effects</h1>
         <p>{this.influencer.name}</p>

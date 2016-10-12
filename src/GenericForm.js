@@ -8,15 +8,21 @@ class GenericViewModelFormClass extends React.Component {
     onSave: React.PropTypes.func.isRequired,
   }
 
+  // Set the raw value on the view model on any changes. This avoids side effects
+  // by using a view model instead of the raw model.
   handleChange(name, value) {
     this.props.viewModel[name] = value
   }
 
+  // Calls the onSave prop with the view model as an argument. Call submit() on
+  // the view model to commit the changes.
   handleSave(e) {
     e.preventDefault()
     this.props.onSave(this.props.viewModel)
   }
 
+  // Renders all the children with a value and an onChange handler. These should
+  // be used by the children to display the values.
   render() {
     const childrenWithProps = React.Children.map(this.props.children,
       (child) => {

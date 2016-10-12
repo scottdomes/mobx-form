@@ -5,6 +5,7 @@ import {extendObservable} from 'mobx'
 import {observer} from 'mobx-react'
 import {toJS} from 'mobx'
 import { GenericViewModelForm, GenericForm, Field } from './GenericForm'
+import VerticalSelector from './VerticalSelector'
 import { createViewModel } from 'mobx-utils'
 
 class App extends Component {
@@ -18,6 +19,7 @@ class App extends Component {
         verticals: ['Health', 'Plaid', 'Farming']
       }
     });
+    this.createInfluencerViewModel()
   }
 
   handleSaveInfluencer(influencer) {
@@ -35,8 +37,18 @@ class App extends Component {
     }
   }
 
+  createInfluencerViewModel() {
+    this.influencerViewModel = createViewModel(this.influencer)
+    // From the mobx-utils docs: You may use observable arrays, maps and objects with createViewModel
+    // but keep in mind to assign fresh instances of those to the viewmodel's properties, otherwise 
+    // you would end up modifying the properties of the original model. 
+    this.influencerViewModel.verticals = toJS(this.influencer.verticals)
+  }
+
   handleVMSave(vm) {
     vm.submit()
+    // Unless we call the below, the viewModel verticals again become coupled to the original observable array 
+    this.createInfluencerViewModel()
   }
 
   switchInfluencer(e) {
@@ -47,6 +59,8 @@ class App extends Component {
       surname: 'Tallin',
       verticals: ['Swearing', 'Philosophy', 'Philosophy of Swearing']
     }
+    // We must call this every time the influencer object changes entirely
+    this.createInfluencerViewModel()
   }
 
   getInfluencerValues() {
@@ -71,7 +85,7 @@ class App extends Component {
         {
           // Switched out <GenericForm values={this.getInfluencerValues()}>
         }
-        <GenericViewModelForm viewModel={createViewModel(this.influencer)} onSave={this.handleVMSave.bind(this)}>
+        <GenericViewModelForm viewModel={this.influencerViewModel} onSave={this.handleVMSave.bind(this)}>
           <Field name="name" type="text" />
           <Field name="surname" type="text" />
           <Field
@@ -80,11 +94,11 @@ class App extends Component {
             setValue={(val) => { return val.split(', ') }}
             getValue={(val) => { return (val || []).join(', ') }} />
           <input type="submit" />
+          <VerticalSelector verticals={this.influencerViewModel.verticals}/>
         </GenericViewModelForm>
 
-        <h1>The Original Observable Object- No Side Effects</h1>
-        <p>{this.influencer.name}</p>
-        <p>{this.influencer.surname}</p>
+        <h4>The Original Observable Object- No Side Effects</h4>
+        <p>{this.influencer.name} {this.influencer.surname}</p>
         {
           this.influencer.verticals.map((vert) => {
             return <p key={vert}>{vert}</p>
